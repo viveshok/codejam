@@ -6,7 +6,7 @@ import "fmt"
 
 func main() {
     if len(os.Args)!=2 {
-        fmt.Printf("\nUsage: $ go run inputfile\n\n")
+        fmt.Printf("\nUsage: $ go run main.go inputfile\n\n")
     } else {
         var numCases int
         fd, _ := os.Open(os.Args[1])
