@@ -1,79 +1,55 @@
 package main
 
-import "os"
 import "fmt"
-
-import "../utils"
+//import "os"
 
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Printf("\nUsage: $ go run main.go inputfile\n\n")
-	} else {
-		var numCases int
 
-		fd, err := os.Open(os.Args[1])
-		utils.Check(err)
+    var numCases int
+    _, err := fmt.Scanf("%d\n", &numCases)
+    if err != nil { panic(err) }
 
-		_, err = fmt.Fscanf(fd, "%d\n", &numCases)
-		utils.Check(err)
+    fmt.Printf("numcases: %v\n", numCases)
 
-		for i := 0; i < numCases; i++ {
-			var input1, input2 string
-			_, err = fmt.Fscanf(fd, "%v\n%v\n", &input1, &input2)
-			utils.Check(err)
-			_, err = fmt.Fscanf(fd, "\n")
-			utils.Check(err)
+    for i := 0; i < numCases; i++ {
+        var text, pattern string
+        _, err = fmt.Scanf("%v\n%v\n", &text, &pattern)
+        if err != nil { panic(err) }
+        _, err = fmt.Scanf("\n")
+        if err != nil { panic(err) }
 
-			fmt.Printf("Case %d: input1: %s, input2: %s, matches: %v\n", i, input1, input2, matches(input1, input2))
-		}
-		fd.Close()
-	}
+        fmt.Printf("Case %d: text: %s, pattern: %s, skipTable: %v\n", i, text, pattern, skipTable(pattern))
+    }
 }
 
-func matches(text string, pattern string) *[]int {
-	target_weight := weight(pattern)
+func skipTable(pattern string) []int {
     length := len(pattern)
-
-    sum := 0
-    for i := 0; i<length; i++ {
-       sum += int(text[i])
+    fss_ := fss(pattern, length)
+    ret := make([]int, length)
+    for i:=0; i<fss_; i++ {
+        ret[i] = i
     }
-
-    ret := make([]int, 100000)
-
-    delta := target_weight-sum
-    if delta*delta<=625 && match(text[0:length], pattern, 1) {
-        ret = append(ret, 0)
+    for i:=fss_; i<length; i++ {
+        ret[i] = fss_
     }
-
-    for i := length; i<=len(text)-1; i++ {
-        sum += int(text[i])-int(text[i-length])
-        delta = target_weight-sum
-        if delta*delta<=625 && match(text[i-length+1:i], pattern, 1) {
-            ret = append(ret, i-length+1)
-        }
-    }
-
-    return &ret
+    return ret
 }
 
-func match(str1 string, str2 string, diff int) bool {
-    for i, v := range str1 {
-        if v!=rune(str2[i]) {
-            if diff<1 {
-                return false
-            } else {
-                diff -= 1
+// First Similar Suffix, one mismatch allowed
+func fss(pattern string, length int) int {
+    for i:=1; i<length-1; i++ {
+        mismatchUsed := false
+        match := true
+        for j:=0; j<length-i && match; j++ {
+            if pattern[j] != pattern[i+j] {
+                if mismatchUsed {
+                    match = false
+                } else {
+                    mismatchUsed = true
+                }
             }
         }
+        if match { return i }
     }
-    return true
-}
-
-func weight(str string) int {
-    ret := 0
-	for _, c := range str {
-        ret += int(c)
-	}
-    return ret
+    return length-1
 }
