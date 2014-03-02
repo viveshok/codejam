@@ -61,9 +61,10 @@ func main() {
 }
 
 func skipTable(pattern string) []int {
-    fmt.Printf("\n%s\n", "abcdefabcdefabcdefghiabcdef")
+//    fmt.Printf("\n%s\n", pattern)
+    skipTable :+ make([]int, len(pattern))
     for i:=1; i<len(pattern); i++ {
-        fmt.Printf("%s", pattern[i:])
+//        fmt.Printf("%s", pattern[i:])
         mismatch := false
         var j int
         var v rune
@@ -76,10 +77,11 @@ func skipTable(pattern string) []int {
                 }
             }
         }
-        fmt.Printf("      %d\n", j)
+//        fmt.Printf("      %d\n", j)
+        skipTable[i] = j
     }
 
-    return []int{}
+    return skipTable
 }
 
 func leftpad(str string, num int) string {
