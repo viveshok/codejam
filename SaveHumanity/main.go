@@ -1,11 +1,61 @@
 package main
 
+// Using suffix tree, credits to Prof. Carl Kingsford, CMU
 import "fmt"
 
-// Modified KMP algorithm
+type Node struct {
+    children map[rune]*Node
+    suffixLink *Node
+}
+
+func newNode() *Node {
+    n := new(Node)
+    n.children = make(map[rune]*Node)
+    return n
+}
+
+func newNodeWithSuffix(suffixLink *Node) *Node {
+    n := newNode()
+    n.suffixLink = suffixLink
+    return n
+}
+
+func buildSuffixTrie(s string) *Node {
+    if len(s) == 0 {
+        panic("Can't build suffix tree of empty string!")
+    }
+    root := newNode()
+    root.suffixLink = root
+    longest := newNodeWithSuffix(root)
+    root.children[rune(s[0])] = longest
+
+    for _, c := range s[1:] {
+        current := longest
+        var previous *Node
+        for _, present := current.children[c]; !present; _, present = current.children[c] {
+            r1 := newNode()
+            current.children[c] = r1
+
+            if previous != nil {
+                previous.suffixLink = r1
+            }
+
+            previous = r1
+            current = current.suffixLink
+        }
+
+        if current == root {
+            previous.suffixLink = root
+        } else {
+            previous.suffixLink = current.children[c]
+        }
+        longest = longest.children[c]
+    }
+
+    return root
+}
 
 func main() {
-
     var numCases int
     _, err := fmt.Scanf("%d\n", &numCases)
     if err != nil { panic(err) }
@@ -14,86 +64,11 @@ func main() {
 
     for i := 0; i < numCases; i++ {
         var text, pattern string
-        _, err = fmt.Scanf("%v\n%v\n", &text, &pattern)
-        if err != nil { panic(err) }
-        _, err = fmt.Scanf("\n")
+        _, err = fmt.Scanf("%v\n%v\n\n", &text, &pattern)
         if err != nil { panic(err) }
 
         fmt.Printf("\ntext:    %v\npattern: %v\n", text, pattern)
-        fmt.Printf("shifts: %v\n", fuzzyKMP(text, pattern, 1))
+        fmt.Printf("suffix trie: %v\n", buildSuffixTrie(text))
     }
 }
 
-func fuzzyKMP(text string, pattern string, k int) []int {
-    n := len(text)
-    m := len(pattern)
-    result := make([]int, 0, n)
-    pi := computeFuzzyPrefix(pattern, k)
-    q := 0
-
-    for i := 0; i < n-m+1; i++ {
-        match := true
-        for q < m && i+q < n {
-            if pattern[q] == text[i+q] {
-                q++
-            } else {
-                q = pi[q]
-                match = false
-                break
-            }
-        }
-        if match {
-            result = append(result, i)
-        }
-    }
-    return result
-}
-
-func computeFuzzyPrefix(pattern string, k int) []int {
-    // place for improvment; worst case O(m^3), maybe possible in O(m)
-    m := len(pattern)
-    pi := make([]int, m)
-    for i := 1; i <= m; i++ {
-        var j int
-        for j = 1; j <= i; j++ {
-            if fuzzyCompare(pattern[j:i], pattern[:i-j], k) {
-                break
-            }
-        }
-        pi[i-1] = i-j
-    }
-    return pi
-}
-
-func fuzzyCompare(a string, b string, k int) bool {
-    if len(a) != len(b) {
-        panic("in func compare; strings are of different length!")
-    }
-
-    for i, v := range a {
-        if rune(b[i]) != v {
-            if k == 0 {
-                return false
-            } else {
-                k--
-            }
-        }
-    }
-
-    return true
-}
-
-
-
-//func leftpad(str string, num int) string {
-//    format := fmt.Sprintf("%%%ds", num)
-//    return fmt.Sprintf(format, str)
-//}
-//
-//func min(a, b int) int {
-//    if a<b {
-//        return a
-//    } else {
-//        return b
-//    }
-//}
