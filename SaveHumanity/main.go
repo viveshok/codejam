@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+import "sort"
 
 type Node struct {
     children map[rune]*Node
@@ -33,13 +34,13 @@ func buildSuffixTrie(s string) *Node {
 }
 
 // return length of all suffixes in sub-trie
-func getIndices(n *Node, k int) []int {
+func getIndices(n *Node, acc int) []int {
     result := []int{}
     for c, child := range n.children {
         if c == '$' {
-            result = append(result, k)
+            result = append(result, acc)
         } else {
-            result = append(result, getIndices(child, k+1)...)
+            result = append(result, getIndices(child, acc+1)...)
         }
     }
     return result
@@ -51,12 +52,14 @@ func find(n *Node, p string, k int) []int {
         return []int{}
     } else if len(p) == 0 { // match!
         return getIndices(n, 0)
-    } else if next, ok := n.children[rune(p[0])]; ok {
-        return find(next, p[1:], k)
-    } else { // burn a mismatch
+    } else {
         result := []int{}
-        for _, child := range n.children {
-            result = append(result, find(child, p[1:], k-1)...)
+        for char, child := range n.children {
+            if char == rune(p[0]) {
+                result = append(result, find(child, p[1:], k)...)
+            } else {
+                result = append(result, find(child, p[1:], k-1)...)
+            }
         }
         return result
     }
@@ -67,8 +70,6 @@ func main() {
     _, err := fmt.Scanf("%d\n", &numCases)
     if err != nil { panic(err) }
 
-    fmt.Printf("numcases: %v\n", numCases)
-
     for i := 0; i < numCases; i++ {
         var text, pattern string
         _, err = fmt.Scanf("%v\n%v\n", &text, &pattern)
@@ -76,32 +77,31 @@ func main() {
         _, err = fmt.Scanf("\n")
         if err != nil { panic(err) }
 
-        for _, i := range find(buildSuffixTrie(text), pattern, 1) {
-            fmt.Printf("\ntext:    %v\n", text)
-            shift := len(text)-len(pattern)-i
-            fmt.Printf("pattern: %v\n", leftpad(pattern, shift))
-//            fmt.Printf("%v ", shift)
+        prelim := find(buildSuffixTrie(text), pattern, 1)
+        results := make([]int, len(prelim))
+        for i, v := range prelim {
+            results[i] = len(text)-len(pattern)-v
+        }
+        sort.Ints(results)
+        for _, v := range results {
+            fmt.Printf("%v ", v)
         }
         fmt.Printf("\n")
     }
 }
 
-func prettyPrint(n *Node) string {
-    result := "["
-    i := 1
-    for c, child := range n.children {
-        if c == '$' {
-            result += string(c)
-        } else {
-            result += string(c) + ":" + prettyPrint(child)
-        }
+func (n *Node) toSuffixArray(prefix string) []string {
 
-        if i < len(n.children) {
-            result += ", "
+    result := []string{}
+
+    if len(n.children) == 0 {
+        return []string{prefix}
+    } else {
+        for char, child := range n.children {
+            result = append(result, child.toSuffixArray(prefix+string(char))...)
         }
-        i++
+        return result
     }
-    return result + "]"
 }
 
 func leftpad(str string, num int) string {
