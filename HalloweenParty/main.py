@@ -8,9 +8,7 @@ if __name__ == "__main__":
 
     for case in range(T):
 
-        [N, C] = [int(X) for X in sys.stdin.readline().split()]
-
-        Ans = N + C
-
-        print(Ans)
+        K = int(sys.stdin.readline())
+        x = K//2
+        print(x*(x+K%2))
 
