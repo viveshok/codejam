@@ -1,35 +1,45 @@
 #!/usr/bin/python3
 
 import sys
-import collections
 
-def acme_distance(a, b):
-    return max(abs(b[0]-a[0]), abs(b[1]-a[1]))
+class Border(object):
 
-def get_vertices(points):
-    vertices = collections.defaultdict(list)
-    while points:
-        p0 = points.pop()
-        for p1 in points:
-            vertices[acme_distance(p0, p1)].append((p0, p1))
+    def __init__(self, points):
+        [self.x0, self.y0, self.x1, self.y1] = [None, None, None, None]
+        for (i, j) in points:
+            self.x0 = min(i, self.x0) if self.x0 is not None else i
+            self.y0 = min(j, self.y0) if self.y0 is not None else j
+            self.x1 = max(i, self.x1) if self.x1 is not None else i
+            self.y1 = max(j, self.y1) if self.y1 is not None else j
 
-    return vertices
+    def on_border(self, point):
+        return point[0]==self.x0 or point[0]==self.x1 or point[1]==self.y0 or point[1]==self.y1
+
+    def max_dist(self, point):
+        return max(abs(self.x0-point[0]), abs(self.x1-point[0]), abs(self.y0-point[1]), abs(self.y1-point[1]))
+
+def solve(points, border):
+    if len(points) > 1:
+        candidates = []
+        for point in points:
+            if border.on_border(point):
+                points_ = points-{point}
+                border_ = Border(points_)
+                candidates.append(border_.max_dist(point) + solve(points_, border_))
+        return min(candidates)
+    else:
+        return 0
 
 if __name__ == "__main__":
 
-    [r, c] = [int(X) for X in sys.stdin.readline().split()]
+    [r, _] = [int(X) for X in sys.stdin.readline().split()]
 
-    points = []
+    points = set()
 
     for i in range(r):
         for j, char in enumerate(sys.stdin.readline().split()):
             if char == '1':
-                points.append((i, j))
+                points.add((i, j))
 
-    tmp = 0
-    for k, v in get_vertices(points).items():
-        print("k:",k,", len(v):", len(v))
-        tmp += len(v)
-
-    print("tmp: ", tmp)
+    print(solve(points, Border(points)))
 
