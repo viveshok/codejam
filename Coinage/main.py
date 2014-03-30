@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import sys
+import operator
 
 def memoize(function):
     cache = dict()
@@ -49,11 +50,15 @@ if __name__ == "__main__":
 
     T = int(sys.stdin.readline())
 
+    problems = []
     for case in range(T):
 
         N = int(sys.stdin.readline())
 
         coins = (int(X) for X in sys.stdin.readline().split())
 
+        problems.append((N, coins))
+
+    for (N, coins) in sorted(problems, key=operator.itemgetter(0)):
         print(solve(N, coins))
 
