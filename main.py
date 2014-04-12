@@ -12,5 +12,5 @@ if __name__ == "__main__":
 
         Ans = N + C
 
-        print(Ans)
+        print("Case #", case+1, ": ", Ans, sep="")
 
