@@ -1,4 +1,17 @@
 
+# trampoline
+
+import types
+
+def trampoline(generator, *args, **kwargs):
+    g = generator(*args, **kwargs)
+    while isinstance(g, types.GeneratorType):
+        g = g.__next__() # python 3
+        #g = g.next() # python 2
+    return g
+
+# memoization
+
 def memoize(function):
     cache = dict()
     def memoized_function(*args):
@@ -9,5 +22,4 @@ def memoize(function):
             cache[args] = result
             return result
     return memoized_function
-
 
