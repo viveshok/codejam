@@ -23,3 +23,11 @@ def memoize(function):
             return result
     return memoized_function
 
+# product of list
+
+def product(numbers):
+    result = 1
+    for number in numbers:
+        result *= number
+    return result
+

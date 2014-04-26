@@ -2,19 +2,20 @@
 
 import sys
 
-class Bead:
-    def __init__(self, color):
-        self.color = color
-        self.bead = None
+def product(numbers):
+    result = 1
+    for number in numbers:
+        result *= number
+    return result
 
-def solve(beads, Ornament):
-    if beads:
-        if Ornament:
-            # return ...
-        else:
-            # return solve()...
-    else:
+def cayley(n):
+
+    assert(n>0)
+
+    if n==1:
         return 1
+    else:
+        return n**(n-2)
 
 if __name__ == "__main__":
 
@@ -26,5 +27,15 @@ if __name__ == "__main__":
 
         beads = [int(X) for X in sys.stdin.readline().split()]
 
-        print(solve(beads, None))
+        cayleys = [cayley(bead) for bead in beads]
+
+        if N == 1:
+            answer = cayleys[0]
+            print(answer%1000000007)
+        else:
+
+            answer = product(beads) * sum(beads)**(N-2)
+            answer *= product(cayleys)
+
+            print(answer%1000000007)
 
