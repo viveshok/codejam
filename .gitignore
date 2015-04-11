@@ -3,4 +3,6 @@
 *.cmi
 *.cmo
 *.main
+*.in
+*.out
 
