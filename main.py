@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+# how to
+# $ python3 -m doctest -v main.py # to test
+# $ ./main.py < input > output # to run
+
 import sys
 #import math
 #import collections
