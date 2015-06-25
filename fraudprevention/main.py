@@ -1,20 +1,29 @@
 
 import sys
+import collections
 
 N = int(sys.stdin.readline())
 
 frauds = list()
 
-# two hashmaps:
-# keys: (dealID, email), values: (recordID, credit card #)
-emails = dict()
-# keys: (dealID, address), values: (recordID, credit card #)
-addresses = dict()
+emails = collections.defaultdict(set)
+addresses = collections.defaultdict(set)
+
+class ID():
+    def __init__(self, oID, card_):
+        self.orderID = oID
+        self.card = card_
+
+    def __hash__(self):
+        return self.card
 
 # loop through the records
 for i in range(N):
     record = sys.stdin.readline().lower().split(',')
     (oID, dID, email, street, city, state, zipcode, card) = tuple(record)
+
+    oID = int(oID)
+    card = int(card)
 
     # process email
     (prefix, suffix) = tuple(email.split('@'))
@@ -28,20 +37,17 @@ for i in range(N):
     address = street + city + state + zipcode
 
     # Check for fraud type 1
-    archive = emails.get((dID, email))
-    if archive and archive[1] != card:
-        frauds.append(archive[0])
-        frauds.append(int(oID))
-    else:
-        emails[(dID, email)] = (int(oID), card)
+    if emails[(dID, email)].difference([card]):
+        frauds.append(oID)
+        frauds.extend([x.orderID for x in emails[(dID, email)]])
 
     # Check for fraud type 2
-    archive = addresses.get((dID, address))
-    if archive and archive[1] != card:
-        frauds.append(archive[0])
-        frauds.append(int(oID))
-    else:
-        addresses[(dID, address)] = (int(oID), card)
+    if addresses[(dID, address)].difference([card]):
+        frauds.append(oID)
+        frauds.extend([x.orderID for x in addresses[(dID, address)]])
+
+    emails[(dID, email)].add(ID(oID, card))
+    addresses[(dID, address)].add(ID(oID, card))
 
 frauds = [str(x) for x in sorted(list(set(frauds)))]
 print(','.join(frauds))
