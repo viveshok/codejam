@@ -19,6 +19,10 @@ def memoize(function):
             return result
     return memoized_function
 
+@memoize
+def range_(M, N, L):
+    return 2 * L + (N-M if M<N else 0)
+
 if __name__ == "__main__":
 
     [M, N, R] = [int(X) for X in sys.stdin.readline().split()]
@@ -52,10 +56,6 @@ if __name__ == "__main__":
         layer_y = max(distance_y-THICKNESS_CORE_Y+1, 1)
 
         return round(max(layer_x, layer_y))
-
-    @memoize
-    def range_(M, N, L):
-        return 2 * L + (N-M if M<N else 0)
 
     def shift(i, j, M, N, R):
         L = layer(i, j, M, N)
