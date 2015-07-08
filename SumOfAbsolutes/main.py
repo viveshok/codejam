@@ -5,6 +5,7 @@
 # $ ./main.py < input > output # to run
 
 import sys
+import itertools
 #import math
 #import collections
 
@@ -12,13 +13,15 @@ if __name__ == "__main__":
 
     [_N, Q] = [int(X) for X in sys.stdin.readline().split()]
 
-    A = [int(X)%2 for X in sys.stdin.readline().split()]
+    A = list(itertools.accumulate((int(X) for X in sys.stdin.readline().split())))
+
+    A.insert(0, 0)
 
     for case in range(Q):
 
         [L, R] = [int(X) for X in sys.stdin.readline().split()]
 
-        result = sum(A[L-1:R])
+        result = (A[R] - A[L-1]) % 2
 
-        print("Even" if result%2==0 else "Odd")
+        print("Odd" if result else "Even")
 

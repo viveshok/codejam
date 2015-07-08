@@ -46,7 +46,8 @@ if __name__ == "__main__":
         while remainder:
             matrix.append([remainder.pop(), remainder.pop(0)])
     else:
-        matrix = [layers[0][:len(layers)/2], reversed(layers[0][:len(layers)/2])]
+        matrix = [layers[0][:len(layers[0])//2],
+                  list(reversed(layers[0][len(layers[0])//2:]))]
 
     for layer in layers[1:]:
 
