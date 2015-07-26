@@ -8,28 +8,19 @@ import sys
 #import math
 #import collections
 
-def bifilter(xs, idx):
-    lhs = list()
-    rhs = list()
-    for (i, x) in xs:
-        if i < idx:
-            lhs.append((i, x))
-        else:
-            rhs.append((i, x))
-    return (lhs, rhs)
-
 def solve(xs, ys):
-    if not xs:
-        return sum([y for (_i, y) in ys])
-    if not ys:
-        return sum([x for (_i, x) in xs])
-    if xs[-1][1] >= ys[-1][1]:
-        (idx, val) = xs.pop()
-        (lhs, rhs) = bifilter(xs, idx)
-        return val + solve(lhs, ys[:]) + solve(rhs, ys[:])
-    (idx, val) = ys.pop()
-    (lhs, rhs) = bifilter(ys, idx)
-    return val + solve(xs[:], lhs) + solve(xs[:], rhs)
+    ans = 0
+    while xs or ys:
+        if not xs:
+            return ans + sum([y for (_i, y) in ys])
+        if not ys:
+            return ans + sum([x for (_i, x) in xs])
+        if xs[-1][1] >= ys[-1][1]:
+            (idx, val) = xs.pop()
+            ans += val + sum([y for (_i, y) in ys])
+        else:
+            (idx, val) = ys.pop()
+            ans += val + sum([x for (_i, x) in xs])
 
 if __name__ == "__main__":
 
