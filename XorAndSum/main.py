@@ -22,8 +22,8 @@ if __name__ == "__main__":
     N = 314159
     MOD = 1000000007
 
-    A = sys.stdin.readline()
-    B = sys.stdin.readline()
+    A = sys.stdin.readline().strip()
+    B = sys.stdin.readline().strip()
 
     NMax = 1000000
     A = '0' * (NMax-len(A)) + A
@@ -42,9 +42,9 @@ if __name__ == "__main__":
     ans = 0
     for i in range(NMax):
         if A[NMax-1-i] == '1':
-            ans += power_mod[i-1] * (N - num_ones(sb, i-N, i) + 1)
+            ans += power_mod[i] * (N - num_ones(sb, i-N, i) + 1)
         else:
-            ans += power_mod[i-1] * num_ones(sb, i-N, i)
+            ans += power_mod[i] * num_ones(sb, i-N, i)
 
     print(ans % MOD)
 
