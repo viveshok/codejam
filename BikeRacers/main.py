@@ -5,8 +5,32 @@
 # $ ./main.py < input > output # to run
 
 import sys
+import numpy
 #import math
-import collections
+#import collections
+
+# hungarian algorithm for perfect matching of bipartite graph
+
+def lines(matrix, axes):
+    lines_ = list()
+    zeros = matrix == 0
+    while numpy.any(zeros):
+        axis, index, line_ = axes.pop()
+        if axis == 0:
+            zeros[index] = False
+        if axis == 1:
+            zeros[:, index] = False
+        lines_.append((axis, index))
+    return lines_
+
+def all_axes(matrix, N, M):
+    axes = []
+    for i in range(N):
+        axes.append((0, i, matrix[i]))
+    for j in range(M):
+        axes.append((1, j, matrix[:,j]))
+    axes.sort(key=lambda axis: sum([x==0 for x in axis[2]]))
+    return axes
 
 if __name__ == "__main__":
 
@@ -22,49 +46,24 @@ if __name__ == "__main__":
         x, y = [int(X) for X in sys.stdin.readline().split()]
         bikes.append((x, y))
 
-    distances = list()
-    for biker in bikers:
-        for bike in bikes:
+    cost_matrix = numpy.zeros((N, M))
+    for i, biker in enumerate(bikers):
+        for j, bike in enumerate(bikes):
             delta_x = biker[0] - bike[0]
             delta_y = biker[1] - bike[1]
-            distances.append((delta_x * delta_x + delta_y * delta_y, biker, bike))
+            cost_matrix[i, j] = delta_x * delta_x + delta_y * delta_y
 
-    distances.sort()
+    # step 1
+    aux = cost_matrix - cost_matrix.min(1).reshape(N, 1)
 
-    # candidate -> (bikers2bikes, bikes2bikers, i, K)
-    candidates = collections.deque()
-    candidates.append((dict(), dict(), 0, K))
-    solution = sys.maxsize
-    while candidates:
-        (bikers2bikes, bikes2bikers, i, k) = candidates.popleft()
-        if i >= len(distances) or distances[i-1][0]>solution:
-            continue
-        _distance, biker, bike = distances[i]
-        if k == 0:
-            solution = min(distances[i-1][0], solution)
-        elif biker in bikers2bikes or bike in bikes2bikers:
-            candidate = (bikers2bikes, bikes2bikers, i+1, k)
-            candidates.appendleft(candidate)
-            bikers2bikes = bikers2bikes.copy()
-            bikes2bikers = bikes2bikers.copy()
-            k -= 1
-            if biker in bikers2bikes:
-                old_bike = bikers2bikes[biker]
-                del bikes2bikers[old_bike]
-                k += 1
-            if bike in bikes2bikers:
-                old_biker = bikes2bikers[bike]
-                del bikers2bikes[old_biker]
-                k += 1
-            bikers2bikes[biker] = bike
-            bikes2bikers[bike] = biker
-            candidate = (bikers2bikes, bikes2bikers, i+1, k)
-            candidates.append(candidate)
-        else:
-            bikers2bikes[biker] = bike
-            bikes2bikers[bike] = biker
-            candidate = (bikers2bikes, bikes2bikers, i+1, k-1)
-            candidates.appendleft(candidate)
+    # step 2
+    aux -= aux.min(0)
 
-    print(solution)
+    # step 3
+    axes = all_axes(aux, N, M)
+    lines_ = lines(aux, axes)
+
+    # step 4
+
+    print(lines_)
 
